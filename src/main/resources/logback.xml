@@ -1,14 +1,11 @@
 <configuration>
     <property name="LOG_HOME" value="logs"/>
     <conversionRule conversionWord="customColor"
-                    converterClass="net.zhuruoling.omms.central.util.logging.LogbackCustomColor"/>
-    <appender name="memoryAppender" class="net.zhuruoling.omms.central.util.logging.MemoryAppender">
-
-    </appender>
+                    converterClass="net.zhuruoling.nekomemo.util.logging.LogbackCustomColor"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>info</level>
+            <level>debug</level>
         </filter>
         <encoder>
             <pattern>%yellow([%d{yyyy-MM-dd HH:mm:ss.SSS}]) %customColor([%thread/%level]) %cyan(\(%logger{1}\)): %msg%n</pattern>
@@ -33,11 +30,10 @@
     </appender>
 
     <root level="debug">
-        <appender-ref ref="memoryAppender"/>
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
     </root>
 
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="debug"/>
+    <logger name="io.netty" level="debug"/>
 </configuration>
