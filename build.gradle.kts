@@ -18,7 +18,6 @@ version = "0.0.1"
 
 application {
     mainClass.set("net.zhuruoling.nekomemo.ApplicationKt")
-    val isDevelopment: Boolean = project.ext.has("development")
 }
 
 repositories {

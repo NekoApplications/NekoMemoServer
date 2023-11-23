@@ -17,8 +17,6 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    configureSecurity()
-    configureHTTP()
     configureMonitoring()
     configureSerialization()
     configureSockets()

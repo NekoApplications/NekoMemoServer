@@ -21,5 +21,9 @@ fun Application.configureRouting() {
                 })
             }
         }
+        route("/auth"){
+            get {
+            }
+        }
     }
 }
