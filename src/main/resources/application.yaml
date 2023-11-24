@@ -7,3 +7,4 @@ ktor:
     watch:
       - build/classes/kotlin/main
       - build/resources/main
+      - patch
