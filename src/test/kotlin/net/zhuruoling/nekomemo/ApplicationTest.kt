@@ -4,6 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import net.zhuruoling.nekomemo.http.plugins.configureRouting
 import kotlin.test.*
 import net.zhuruoling.nekomemo.plugins.*
 

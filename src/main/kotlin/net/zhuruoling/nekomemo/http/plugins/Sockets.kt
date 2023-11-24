@@ -1,4 +1,4 @@
-package net.zhuruoling.nekomemo.plugins
+package net.zhuruoling.nekomemo.http.plugins
 
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*

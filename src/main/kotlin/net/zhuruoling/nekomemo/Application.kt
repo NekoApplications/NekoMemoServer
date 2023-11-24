@@ -2,6 +2,10 @@ package net.zhuruoling.nekomemo
 
 import io.ktor.server.application.*
 import net.zhuruoling.nekomemo.config.Config
+import net.zhuruoling.nekomemo.http.plugins.configureMonitoring
+import net.zhuruoling.nekomemo.http.plugins.configureRouting
+import net.zhuruoling.nekomemo.http.plugins.configureSerialization
+import net.zhuruoling.nekomemo.http.plugins.configureSockets
 import net.zhuruoling.nekomemo.plugins.*
 import net.zhuruoling.nekomemo.util.getVersionInfoString
 import org.slf4j.LoggerFactory
