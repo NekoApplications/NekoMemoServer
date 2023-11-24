@@ -15,7 +15,7 @@ object SessionManager {
     }
 
     fun removeExpiredSessions() {
-        synchronized(sessions){
+        synchronized(sessions) {
             val removed = mutableListOf<String>()
             sessions.forEach {
                 if (it.value.sessionTimeout < System.currentTimeMillis()) {
