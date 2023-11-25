@@ -2,9 +2,12 @@ package net.zhuruoling.nekomemo.security
 
 import io.ktor.util.*
 import net.zhuruoling.nekomemo.config.Config
-import java.security.DrbgParameters
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
+import java.security.*
+import java.security.spec.InvalidKeySpecException
+import java.security.spec.X509EncodedKeySpec
+import java.util.*
+import javax.crypto.Cipher
+
 
 fun generateRandomSeed(): ByteArray {
     return System.currentTimeMillis().toString().encodeToByteArray()
@@ -26,4 +29,22 @@ fun generateAccessToken(): String {
 
 fun verifyAccessToken(content: String): Boolean {
     return Config.accessTokenHash == content
+}
+
+fun rsaEncrypt(content: ByteArray, key: ByteArray): ByteArray {
+    val keySpec = X509EncodedKeySpec(key)
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val publicKey = keyFactory.generatePublic(keySpec)
+    val cipher = Cipher.getInstance("RSA/CBC/PKCS1Padding")
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey)
+    return cipher.doFinal(content)
+}
+
+fun rsaDecrypt(content: ByteArray, key: ByteArray): ByteArray {
+    val keySpec = X509EncodedKeySpec(key)
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val privateKey = keyFactory.generatePrivate(keySpec)
+    val cipher = Cipher.getInstance("RSA/CBC/PKCS1Padding")
+    cipher.init(Cipher.DECRYPT_MODE, privateKey)
+    return cipher.doFinal(content)
 }
