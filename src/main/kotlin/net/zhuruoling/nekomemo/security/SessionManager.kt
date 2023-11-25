@@ -2,6 +2,11 @@ package net.zhuruoling.nekomemo.security
 
 import io.ktor.server.sessions.*
 import net.zhuruoling.nekomemo.config.Config
+import sun.security.rsa.RSAPublicKeyImpl
+import java.lang.IllegalArgumentException
+import java.security.PublicKey
+import java.security.spec.RSAPublicKeySpec
+import javax.crypto.Cipher
 
 object SessionManager {
     private val sessions = mutableMapOf<String, Session>()
@@ -38,6 +43,37 @@ object SessionManager {
             }
         }
     }
+
+    fun updateClientPublicKey(sessionId: String, key: ByteArray) {
+        (sessions[sessionId] ?: throw IllegalArgumentException("Session $sessionId not exist."))
+            .keyStore.apply {
+                this.gotPublicKeyFromClient = true
+                this.clientPublicKey = key
+            }
+    }
+
+    fun deactivateSession(sessionId: String) {
+        if (sessionId !in sessions)throw IllegalArgumentException("Session $sessionId not exist.")
+        sessions.remove(sessionId)
+    }
+
+    fun encryptIfAvailable(sessionId: String, content: ByteArray): ByteArray{
+        if (sessionId !in sessions)throw IllegalArgumentException("Session $sessionId not exist.")
+        val keyStore = sessions[sessionId]!!.keyStore
+        if (!keyStore.gotPublicKeyFromClient)return content
+        val cipher = Cipher.getInstance("RSA/CBC/PKCS1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, RSAPublicKeyImpl.newKey(keyStore.clientPublicKey))
+        return cipher.doFinal(content)
+    }
+
+    fun decrypt(sessionId: String, content: ByteArray):ByteArray{
+        if (sessionId !in sessions)throw IllegalArgumentException("Session $sessionId not exist.")
+        val keyStore = sessions[sessionId]!!.keyStore
+        val cipher = Cipher.getInstance("RSA/CBC/PKCS1Padding")
+        cipher.init(Cipher.DECRYPT_MODE, RSAPublicKeyImpl.newKey(keyStore.serverPrivateKey))
+        return cipher.doFinal(content)
+    }
+
 }
 
 data class Session(val sessionId: String, val sessionTimeout: Long = 3600, val keyStore: SessionKeyStore)
@@ -65,6 +101,8 @@ class SessionKeyStore(
         result = 31 * result + gotPublicKeyFromClient.hashCode()
         return result
     }
+
+
 }
 
 enum class ValidateResult {
