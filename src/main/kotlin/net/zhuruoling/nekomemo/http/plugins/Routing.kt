@@ -59,6 +59,17 @@ fun Application.configureRouting() {
                 }
             }
         }
+        route("/file") {
+            post("/update") {
+                withValidatedSession session@{
+                    val name = call.request.header("Name")
+                        ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
+                    val replace = call.request.header("Replace").toBoolean()
+                    
+                }
+            }
+
+        }
     }
 }
 
@@ -70,6 +81,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.withValidatedSession(block: s
         ValidateResult.PASS -> {
             block(this)
         }
+
         ValidateResult.EXPIRED -> {
             call.respond(
                 HttpResponse(
@@ -79,6 +91,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.withValidatedSession(block: s
                 )
             )
         }
+
         ValidateResult.NOT_EXIST -> {
             call.respond(HttpResponse(Responses.SESSION_NOT_EXIST))
         }

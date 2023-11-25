@@ -1,6 +1,5 @@
 package net.zhuruoling.nekomemo.http.data
 
-import net.zhuruoling.nekomemo.security.Session
 import net.zhuruoling.nekomemo.util.toObject
 
 enum class ContentType(val clazz: Class<*>) {

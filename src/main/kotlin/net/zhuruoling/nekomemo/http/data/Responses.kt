@@ -14,5 +14,5 @@ enum class Responses(val description: String, val success: Boolean) {
 
     REQUIRE_AUTHORIZATION("Auth required", false),
 
-
+    REQUIRE_FILE_NAME("File name required.", false)
 }
