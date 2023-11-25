@@ -60,15 +60,38 @@ fun Application.configureRouting() {
             }
         }
         route("/file") {
-            post("/update") {
+            post("update") {
+                // /file/update?name={string}&replace={boolean}
                 withValidatedSession session@{
-                    val name = call.request.header("Name")
+                    val name = call.request.queryParameters["name"]
                         ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
-                    val replace = call.request.header("Replace").toBoolean()
-                    
+                    val replace = call.request.queryParameters["replace"].toBoolean()
+                    this.call.receiveStream()
                 }
             }
+            get("list") {
+                // /file/list?pattern={string}
+                withValidatedSession session@{
+                    val pattern = call.request.queryParameters["pattern"]
 
+                }
+            }
+            get("fetch") {
+                // /file/fetch?name={string}
+                withValidatedSession session@{
+                    val name = call.request.queryParameters["name"]
+                        ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
+
+                }
+            }
+            delete("delete") {
+                // /file/delete?name={string}
+                withValidatedSession session@{
+                    val name = call.request.queryParameters["name"]
+                        ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
+
+                }
+            }
         }
     }
 }
