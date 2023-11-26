@@ -121,7 +121,6 @@ fun Application.configureRouting() {
                             }
                         }
                     } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
                         call.respond(HttpResponse(Responses.FILE_NOT_EXIST))
                     }
                 }
