@@ -6,12 +6,19 @@ import net.zhuruoling.nekomemo.config.Config
 object SessionManager {
     private val sessions = mutableMapOf<String, Session>()
     fun createNewSession(): Session {
-        val sessionId = generateSessionId()
-        val (pub, priv) = generateKeyPair(seed = generateRandomSeed())
-        val ks = SessionKeyStore(pub, priv)
-        val session = Session(sessionId, System.currentTimeMillis() + Config.sessionTimeOut, ks)
-        sessions += sessionId to session
-        return session
+        return synchronized(sessions) {
+            val sessionId = generateSessionId()
+            val (pub, priv) = generateKeyPair(seed = generateRandomSeed())
+            val ks = SessionKeyStore(pub, priv)
+            val session = Session(sessionId, System.currentTimeMillis() + Config.sessionTimeOut, ks)
+            sessions += sessionId to session
+            sessions.forEach{
+                println("=======")
+                println(it.key + " " + it.value.toString())
+                println("=======")
+            }
+            session
+        }
     }
 
     fun removeExpiredSessions() {
@@ -28,13 +35,15 @@ object SessionManager {
 
     fun validateSession(sessionId: String): Pair<ValidateResult, Session?> {
         return synchronized(sessions) {
-            if ((sessions[sessionId]
-                    ?: return ValidateResult.NOT_EXIST to null).sessionTimeout < System.currentTimeMillis()
-            ) {
-                ValidateResult.PASS to sessions[sessionId]
+            if (sessionId !in sessions) {
+                return ValidateResult.NOT_EXIST to null
+            }
+            val session = sessions[sessionId]!!
+            if (session.sessionTimeout >= System.currentTimeMillis()) {
+                ValidateResult.PASS to session
             } else {
                 removeExpiredSessions()
-                ValidateResult.EXPIRED to sessions[sessionId]
+                ValidateResult.EXPIRED to session
             }
         }
     }
@@ -48,8 +57,10 @@ object SessionManager {
     }
 
     fun deactivateSession(sessionId: String) {
-        if (sessionId !in sessions) throw IllegalArgumentException("Session $sessionId not exist.")
-        sessions.remove(sessionId)
+        synchronized(sessions) {
+            if (sessionId !in sessions) throw IllegalArgumentException("Session $sessionId not exist.")
+            sessions.remove(sessionId)
+        }
     }
 
     fun encryptIfAvailable(sessionId: String, content: ByteArray): ByteArray {
