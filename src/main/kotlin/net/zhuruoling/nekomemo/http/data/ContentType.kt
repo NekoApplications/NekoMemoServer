@@ -1,5 +1,6 @@
 package net.zhuruoling.nekomemo.http.data
 
+import io.ktor.util.*
 import net.zhuruoling.nekomemo.util.toObject
 
 enum class ContentType(val clazz: Class<*>) {
@@ -8,8 +9,11 @@ enum class ContentType(val clazz: Class<*>) {
     STRING_ARRAY(Array<String>::class.java),
     SESSION(SessionData::class.java);
 
-
-    fun <T> getObject(response: HttpResponse): T {
-        return response.content.toObject(clazz as Class<out T>)
+    companion object {
+        fun <T> getObject(response: HttpResponse, clz: Class<T>): T {
+            return response.content.decodeBase64String().toObject(clz) as T
+        }
     }
+
+
 }

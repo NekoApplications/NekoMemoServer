@@ -46,7 +46,7 @@ fun Application.configureRouting() {
                             Responses.ACCESS_TOKEN_VERIFIED,
                             null,
                             ContentType.SESSION,
-                            session.toJson().encodeBase64()
+                            SessionData.fromSession(session).toJson().encodeBase64()
                         )
                     )
                 }

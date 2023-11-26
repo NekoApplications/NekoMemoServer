@@ -23,6 +23,10 @@ object Config {
         }
     }
 
+    init {
+        load()
+    }
+
     fun load(): Boolean {
         var configCreated = false
         if (configPath.notExists() || (configPath.fileSize() <= 0)) {
