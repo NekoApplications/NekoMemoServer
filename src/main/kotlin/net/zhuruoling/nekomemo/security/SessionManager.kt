@@ -12,11 +12,6 @@ object SessionManager {
             val ks = SessionKeyStore(pub, priv)
             val session = Session(sessionId, System.currentTimeMillis() + Config.sessionTimeOut, ks)
             sessions += sessionId to session
-            sessions.forEach{
-                println("=======")
-                println(it.key + " " + it.value.toString())
-                println("=======")
-            }
             session
         }
     }

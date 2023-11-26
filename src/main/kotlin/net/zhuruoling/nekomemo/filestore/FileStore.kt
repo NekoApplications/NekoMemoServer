@@ -27,8 +27,14 @@ object FileStore {
         return files[fileName]?.inputStream() ?: throw FileNotFoundException("File $fileName not found.")
     }
 
-    fun <T> useFile(fileName: String, block: (InputStream) -> T): T {
-        return (files[fileName]?.inputStream() ?: throw FileNotFoundException("File $fileName not found.")).use(block)
+    suspend fun <T> useFile(fileName: String, block: suspend (InputStream) -> T): T {
+        val file = files[fileName] ?: throw FileNotFoundException("File $fileName not found.")
+        return withContext(Dispatchers.IO) {
+            val inputStream = file.inputStream()
+            val t = block(inputStream)
+            inputStream.close()
+            t
+        }
     }
 
     suspend fun createNewFile(fileName: String, replace: Boolean = false, block: suspend (OutputStream) -> Unit) {
@@ -47,13 +53,20 @@ object FileStore {
     }
 
     fun filter(pattern: String? = null): Map<String, File>{
-        val exp = Pattern.compile(pattern ?: return files)
-        return buildMap<String, File> {
-
+        return synchronized(files){
+            val exp = Pattern.compile(pattern ?: return files)
+            buildMap {
+                this += files.filter { exp.matcher(it.key).matches() }
+            }
         }
     }
 
-    fun scheduleDeleteFile(fileName: String) {
-        val file = files[fileName] ?: throw FileNotFoundException("File $fileName not found.")
+    fun deleteFile(fileName: String) {
+       synchronized(files) {
+            val file = files[fileName] ?: throw FileNotFoundException("File $fileName not found.")
+            if (!file.exists()) throw FileNotFoundException("File $fileName not found.")
+            file.delete()
+            files.remove(fileName)
+        }
     }
 }

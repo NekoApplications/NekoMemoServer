@@ -114,13 +114,14 @@ fun Application.configureRouting() {
                 withValidatedSession session@{ _ ->
                     val name = call.request.queryParameters["name"]
                         ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
-                    try {
-                        call.respondOutputStream {
-                            FileStore.useFile(name) {
+                    return@session try {
+                        FileStore.useFile(name){
+                            call.respondOutputStream {
                                 it.transferTo(this)
                             }
                         }
                     } catch (e: FileNotFoundException) {
+                        e.printStackTrace()
                         call.respond(HttpResponse(Responses.FILE_NOT_EXIST))
                     }
                 }
@@ -131,7 +132,7 @@ fun Application.configureRouting() {
                     val name = call.request.queryParameters["name"]
                         ?: return@session call.respond(HttpResponse(Responses.REQUIRE_FILE_NAME))
                     try {
-                        FileStore.scheduleDeleteFile(name)
+                        FileStore.deleteFile(name)
                         call.respond(HttpResponse(Responses.FILE_DELETED))
                     } catch (e: FileNotFoundException) {
                         call.respond(HttpResponse(Responses.FILE_NOT_EXIST))
